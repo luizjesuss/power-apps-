@@ -1,0 +1,125 @@
+- animation_container_canvas:
+    Control: GroupContainer
+    Variant: verticalAutoLayoutContainer
+    Properties:
+      Height: =300
+      LayoutDirection: =LayoutDirection.Vertical
+      LayoutGap: =16
+      LayoutMode: =LayoutMode.Auto
+      PaddingTop: =16
+      RadiusBottomLeft: =8
+      RadiusBottomRight: =8
+      RadiusTopLeft: =8
+      RadiusTopRight: =8
+      X: =57
+      Y: =245
+    Children:
+    - animation_action_container:
+        Control: GroupContainer
+        Variant: horizontalAutoLayoutContainer
+        Properties:
+          DropShadow: =DropShadow.None
+          FillPortions: =0
+          Height: =60
+          LayoutGap: =8
+          LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+          LayoutMode: =LayoutMode.Auto
+          PaddingBottom: =4
+          PaddingLeft: =16
+          PaddingRight: =16
+          PaddingTop: =4
+        Children:
+        - refresh_button:
+            Control: Classic/Button
+            Properties:
+              OnSelect: |+
+                =UpdateContext({play_animation: true});
+              Text: ="Play anmation"
+              AlignInContainer: =AlignInContainer.Stretch
+              BorderColor: =
+              BorderThickness: =0
+              Fill: =RGBA(240, 81, 84, 1)
+              FocusedBorderThickness: |
+                =0
+              HoverBorderColor: =Self.Fill
+              HoverColor: =Self.Color
+              HoverFill: =Self.Fill
+              LayoutMinHeight: =10
+              PressedColor: =Self.Color
+              PressedFill: =Self.Fill
+              Size: =10
+              Width: =170
+              X: =194
+              Y: =40
+        - animation_timer_ball:
+            Control: Timer
+            Properties:
+              OnTimerEnd: |-
+                =Reset(Self);
+                UpdateContext({play_animation: false});
+                UpdateContext({direction: !direction});
+              OnTimerStart: |
+                =
+              AutoPause: =false
+              AutoStart: =play_animation
+              Duration: =3000
+              Text: =Round(Self.Value / Self.Duration, 2)
+              AlignInContainer: =AlignInContainer.Stretch
+              Color: =RGBA(0, 0, 0, 1)
+              DisabledColor: =Color.Gray
+              DisplayMode: =DisplayMode.Disabled
+              Fill: =RGBA(0, 0, 0, 0)
+              FontWeight: =FontWeight.Bold
+              LayoutMinHeight: =10
+              Size: =10
+              Width: =60
+              Y: =40
+    - animation_canvas:
+        Control: GroupContainer
+        Variant: manualLayoutContainer
+        Properties:
+          Height: =388
+          RadiusBottomLeft: =0
+          RadiusBottomRight: =0
+          RadiusTopLeft: =0
+          RadiusTopRight: =0
+          Width: =600
+          X: =240
+          Y: =105
+        Children:
+        - background_image:
+            Control: Image
+            Properties:
+              Image: ="data:image/svg+xml;utf8," & EncodeUrl("<svg width=""100%"" height=""100%"" xmlns=""http://www.w3.org/2000/svg""> <defs> <pattern id=""smallGrid"" width=""8"" height=""8"" patternUnits=""userSpaceOnUse""> <path d=""M 8 0 L 0 0 0 8"" fill=""none"" stroke=""gray"" stroke-width=""0.5""/> </pattern> <pattern id=""grid"" width=""80"" height=""80"" patternUnits=""userSpaceOnUse""> <rect width=""80"" height=""80"" fill=""url(#smallGrid)""/> <path d=""M 80 0 L 0 0 0 80"" fill=""none"" stroke=""gray"" stroke-width=""1""/> </pattern> </defs> <rect width=""100%"" height=""100%"" fill=""url(#grid)"" /> </svg>")
+              Height: =Parent.Height
+              ImagePosition: =ImagePosition.Fill
+              Transparency: =0.7
+              Width: =Parent.Width
+        - animated_ball:
+            Control: Circle
+            Properties:
+              BorderColor: =RGBA(0, 0, 0, 0)
+              Fill: =RGBA(214, 221, 224, 1)
+              Height: =Self.Width
+              Width: =50
+              X: |
+                =With(
+                    {
+                        progress_value: (animation_timer_ball.Value / animation_timer_ball.Duration),
+                        distance: (Parent.Width - Self.Width)
+                    },
+                    If(
+                        direction,
+                        distance * If(
+                            progress_value <= 0.5,
+                            4 * progress_value * progress_value * progress_value, // Ease In
+                            1 - 4 * (1 - progress_value) * (1 - progress_value) * (1 - progress_value) // Ease Out
+                        ),
+                        distance * (1 - If(
+                            progress_value <= 0.5,
+                            4 * progress_value * progress_value * progress_value, // Ease In
+                            1 - 4 * (1 - progress_value) * (1 - progress_value) * (1 - progress_value) // Ease Out
+                        ))
+                    )
+                )
+              Y: =Parent.Height/2 - Self.Height/2
